@@ -1,0 +1,15 @@
+class HashmapTable:
+    def __init__(self,type,n):
+        self.hashmap = Hashmap(type,n)
+    def tableIsEmpty(self):
+        return self.hashmap.isEmpty()
+    def tableInsert(self,newItem):
+        return self.hashmap.tableInsert(newItem)
+    def tableDelete(self,value):
+        return self.hashmap.tableDelete(value)
+    def tableRetrieve(self,searchkey):
+        return self.hashmap.tableRetrieve(searchkey)
+    def load(self,dict):
+        return self.hashmap.load(dict)
+    def save(self):
+        return self.hashmap.save()
