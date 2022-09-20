@@ -1,0 +1,17 @@
+class BSTTable:
+    def __init__(self):
+        self.BST = BST()
+    def tableIsEmpty(self):
+        return self.BST.isEmpty()
+    def tableInsert(self,searchkey):
+        return self.BST.searchTreeInsert(searchkey)
+    def tableRetrieve(self,searchkey):
+        return self.BST.searchTreeRetrieve(searchkey)
+    def traverseTable(self,function):
+        return self.BST.inorderTraverse(function)
+    def save(self):
+        return self.BST.save()
+    def load(self,dicto):
+        return self.BST.load(dicto)
+    def tableDelete(self,searchkey):
+        return self.BST.searchTreeDelete(searchkey)
