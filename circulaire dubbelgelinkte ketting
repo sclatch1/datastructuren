@@ -1,0 +1,138 @@
+class Node:
+    def __init__(self,newitem=None):
+        self.item = newitem
+        self.next = None
+        self.previous = None
+
+class LinkedChain:
+    def __init__(self):
+        """
+        create empty LinkedChain
+        """
+        self.dummyHeadNode = Node()
+        self.headptr = self.dummyHeadNode
+        self.length = 0
+        self.current = None
+        self.prev = None
+    def isEmpty(self):
+        """
+        check if LinkedList is empty
+        :return:
+        """
+        if self.length == 0:
+            return True
+        return False
+
+    def getLength(self):
+        return self.length
+
+    def retrieve(self,positie):
+        if positie == 0:
+            return (self.headptr,True)
+        elif 1 <= positie <= self.getLength():
+            i=1
+            self.current = self.dummyHeadNode.next
+            while i != positie:
+                self.current = self.current.next
+                i += 1
+            return(self.current.item,True)
+        return (None,False)
+    def insert(self,positie,item):
+        if 1 <= positie <= self.getLength()+1:
+            i = 1
+            self.current = self.dummyHeadNode.next
+            if positie != 1:
+                while i != positie:
+                    self.prev = self.current
+                    self.current = self.current.next
+                    i += 1
+            if i == 1 and self.isEmpty():
+                newItem = Node(item)
+                newItem.next = self.dummyHeadNode
+                newItem.previous = self.dummyHeadNode
+                self.dummyHeadNode.next = newItem
+                self.dummyHeadNode.prev = newItem
+                self.length += 1
+                return True
+            else:
+                # case 1: first node
+                if i == 1:
+                    newitem = Node(item)
+                    newitem.next = self.current
+                    newitem.previous = self.dummyHeadNode
+                    self.dummyHeadNode.next = newitem
+                    self.current.previous = newitem
+                    return True
+                # case 2: last node
+                elif i == self.getLength()+1:
+                    newitem = Node(item)
+                    newitem.next = self.dummyHeadNode
+                    newitem.previous = self.prev
+                    self.prev.next = newitem
+                    self.dummyHeadNode.next = newitem
+                    self.length += 1
+                    return True
+                # case 3: intern node
+                else:
+                    newitem = Node(item)
+                    newitem.next = self.current
+                    newitem.previous = self.prev
+                    self.prev.next = newitem
+                    self.current.previous = newitem
+                    self.length += 1
+                    return True
+        return False
+    def save(self):
+        if self.length == 0:
+            return False
+
+        output = "["
+        self.current = self.dummyHeadNode.next
+        if self.current.next == self.dummyHeadNode:
+            output += str(self.current.item) + "]"
+        else:
+            while self.current.next != self.dummyHeadNode:
+                output += str(self.current.item) + ","
+                self.current = self.current.next
+            if self.current.next == self.dummyHeadNode:
+                output += str(self.current.item) + "]"
+        return output
+    def load(self,items):
+        self.length = 0
+        self.dummyHeadNode.next = Node(items[0])
+        self.dummyHeadNode.previous = self.dummyHeadNode.next
+        self.current = self.dummyHeadNode.next
+        i = 1
+        while i != len(items)+1:
+            if i == len(items):
+                self.current.next = self.dummyHeadNode
+
+            else:
+                self.current.next = Node(items[i])
+                self.current = self.current.next
+            i += 1
+        self.length = len(items)
+    def delete(self,positie):
+        self.current = self.dummyHeadNode.next
+        if 1 <= positie <= self.getLength():
+            # first node
+            if positie == 1:
+                self.dummyHeadNode.next = self.current.next
+                self.current.next.previous = self.dummyHeadNode
+                return True
+            else:
+                i=1
+                while i != positie:
+                    self.prev = self.current
+                    self.current = self.current.next
+                # case 2 (last Node)
+                if self.current.next == self.dummyHeadNode:
+                    self.prev.next = self.dummyHeadNode
+                    self.dummyHeadNode.next = self.prev
+                # case 3 (internal Node)
+                else:
+                    self.prev.next = self.current.next
+                    self.current.next.previous = self.prev
+                return True
+        else:
+            return False
