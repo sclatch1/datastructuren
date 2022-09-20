@@ -1,0 +1,176 @@
+def createTreeItem(key,val):
+    return (key,val)
+
+class Pointer:
+    def __init__(self):
+        self.next = None
+
+def visit(value):
+    print(str(value))
+
+class BST:
+    def __init__(self):
+
+        self.value = None
+        self.key = None
+        self.leftTree = None
+        self.rightTree = None
+
+    def isEmpty(self):
+        if self.value == None:
+            return True
+        return False
+
+    def searchTreeInsert(self,newItem):
+
+        if self.isEmpty():
+            self.value = newItem[1]
+            self.key = newItem[0]
+            return True
+        else:
+            if newItem[0] < self.key and not self.leftTree:
+                pointer = Pointer()
+                NewTree = BST()
+                pointer.next = NewTree
+                NewTree.key = newItem[0]
+                NewTree.value = newItem[1]
+                self.leftTree = NewTree
+                return True
+            if newItem[0] > self.key and not self.rightTree:
+                pointer = Pointer()
+                NewTree = BST()
+                pointer.next = NewTree
+                NewTree.key = newItem[0]
+                NewTree.value = newItem[1]
+                self.rightTree = NewTree
+                return True
+            elif self.leftTree and newItem[0] < self.key:
+                self.leftTree.searchTreeInsert(newItem)
+            elif self.rightTree:
+                self.rightTree.searchTreeInsert(newItem)
+
+    def searchTreeRetrieve(self,key):
+        if not self.isEmpty():
+            if self.key == key:
+                return (self.value,True)
+            if key < self.key:
+                if self.leftTree:
+                    if self.leftTree.key == key:
+                        return (self.leftTree.value,True)
+                    self.leftTree.searchTreeRetrieve(key)
+            else:
+                if self.rightTree:
+                    if self.rightTree.key == key:
+                        return (self.rightTree.value,True)
+                    self.rightTree.searchTreeRetrieve(key)
+
+    def inorderTraverse(self,Function=None):
+        list = []
+        if self.value != None:
+            if self.leftTree != None:
+                self.leftTree.inorderTraverse(Function)
+            if Function == print:
+                visit(self.value)
+            if self.rightTree != None:
+                self.rightTree.inorderTraverse(Function)
+            return list
+    def save(self):
+        output = ""
+        flag = False
+        no_childs = False
+        only_root = False
+        if self.rightTree == None and self.leftTree == None and self.value != None:
+            output += "'root': " + str(self.key)
+            only_root = True
+        if self.rightTree != None and self.leftTree != None:
+            if self.leftTree.key == None and self.rightTree.key == None  and self.value != None:
+                output += "'root': " + str(self.key)
+                no_childs = True
+        if self.value != None and not only_root and not no_childs:
+            output += "'root': " + str(self.key)
+        if self.key == None:
+            flag=True
+            output += "None"
+
+        if (self.rightTree != None or self.leftTree != None) and not no_childs:
+            if self.leftTree != None:
+                output += ", 'children': [" + self.leftTree.save()
+
+            if self.rightTree != None:
+                output += ", " + self.rightTree.save() + "]"
+        if (self.leftTree == None and self.rightTree != None) or (self.leftTree != None and self.rightTree == None):
+            output += ",None]"
+        if not flag:
+            output = "{" + output + "}"
+        return output
+        # {'root': 150, 'children': [{'root': 50, 'children': [{'root': 20}, {'root': 110}]}, {'root': 200}]}
+    def load(self,dicto):
+
+        root = dicto['root']
+        children = dicto['children']
+        self.leftTree = None
+        self.rightTree = None
+        self.key = None
+        self.value = None
+
+        self.searchTreeInsert(createTreeItem(root,root))
+        for item in children:
+            if type(item) == dict:
+                self.searchTreeInsert(createTreeItem(item['root'],item['root']))
+                if len(item) > 1:
+                    childs = item['children']
+                    if len(childs) != 0:
+                        for element in childs:
+                            if element == None:
+                                continue
+                            else:
+                                self.searchTreeInsert(createTreeItem(element['root'],element['root']))
+            else:
+                if item == None:
+                    continue
+                else:
+                    self.searchTreeInsert(createTreeItem(item,item))
+    def searchTreeDelete(self,searchkey):
+         if not self.isEmpty():
+            if searchkey < self.key:
+                if self.leftTree:
+                    self.leftTree.searchTreeDelete(searchkey)
+            elif searchkey > self.key:
+                if self.rightTree:
+                    self.rightTree.searchTreeDelete(searchkey)
+            else:
+                # case 1: knoop is een blad
+                if self.leftTree == None and self.rightTree == None:
+
+                    self.key = None
+                    self.value = None
+
+                    return True
+                # case 2: knoop heeft 1 kind
+                elif self.leftTree == None or self.rightTree == None:
+                    if self.leftTree != None:
+                        self.value = self.leftTree.value
+                        self.key = self.leftTree.key
+                        self.leftTree = None
+                        return True
+                    else:
+                        self.value = self.rightTree.value
+                        self.key = self.rightTree.key
+                        self.rightTree = None
+                        return True
+                # case 3: knoop geeft 2 kinderen
+                else:
+                    temp = minValueNode(self.rightTree)
+                    self.key = temp.key
+                    self.rightTree.searchTreeDelete(temp.key)
+                    return True
+         return False
+
+
+
+def minValueNode(BST):
+    # overgenomen van https://www.geeksforgeeks.org/binary-search-tree-set-2-delete/
+    current = BST
+    while (current.leftTree is not None):
+        current = current.leftTree
+    return current
