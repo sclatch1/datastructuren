@@ -1,0 +1,362 @@
+def createTableItem(key,val):
+    return HashItem(key,val)
+
+
+class Node:
+    def __init__(self, newitem):
+        self.item = newitem
+        self.next = None
+
+class Pointer:
+    def __init__(self):
+        self.next = None
+
+class LinkedChain:
+    def __init__(self):
+        """
+        create empty LinkedChain
+        """
+        self.headptr = Pointer()
+        self.length = 0
+        self.current = Pointer()
+        self.prev = Pointer()
+        self.newPtr = Pointer()
+
+    def isEmpty(self):
+        """
+        check if LinkedList is empty
+        :return:
+        """
+        if self.length == 0:
+            return True
+        return False
+
+    def getLength(self):
+        return self.length
+
+    def retrieve(self, positie):
+        if positie == 1:
+            return (self.headptr.next.item, True)
+        elif 1 <= positie <= self.getLength():
+            i = 1
+            self.current.next = self.headptr.next
+            while i < positie:
+                self.current.next = self.current.next.next
+                i += 1
+            return (self.current.next.item, True)
+        return (1, False)
+
+    def insert(self, positie, item):
+        if 1 <= positie <= self.getLength() + 1:
+            i = 1
+            self.current.next = self.headptr.next
+
+            if positie != 1 and positie != self.length+1:
+                while i <= positie:
+                    self.prev.next = self.current.next
+                    self.current.next = self.current.next.next
+                    i += 1
+            elif positie != 1 and positie == self.length+1:
+                while i <= self.getLength():
+                    self.prev.next = self.current.next
+                    self.current.next = self.current.next.next
+                    i += 1
+            if i == 1 and self.isEmpty():
+                self.headptr.next = Node(item)
+                self.length += 1
+                return (item,True)
+            else:
+                # case 1: vooraan
+                if positie == 1:
+                    newitem = Node(item)
+                    self.newPtr.next = newitem
+                    newitem.next = self.current.next
+                    self.headptr.next = newitem
+                    self.length += 1
+                    return (item,True)
+                # case 2: achteraan
+                elif positie == self.getLength()+1:
+                    newItem = Node(item)
+                    self.newPtr.next = newItem
+                    self.prev.next.next = newItem
+                    self.length += 1
+                    return (item,True)
+                # case 3: tussen 2 knopen
+                else:
+                    newitem = Node(item)
+                    self.newPtr.next = newitem
+                    newitem.next = self.current.next
+                    self.prev.next.next = newitem
+                    self.length += 1
+                    return (item,True)
+        return (None,False)
+
+    def save(self):
+        output = "["
+        self.current = self.headptr
+        while self.current != None:
+            if self.current.next == None:
+                output += str(self.current.item) + "]"
+            else:
+                output += str(self.current.item) + ","
+            self.current = self.current.next
+        return output
+
+    def load(self, items):
+        self.length = 0
+        self.headptr = Node(items[0])
+        self.current = self.headptr
+        i = 1
+        while i != len(items):
+            self.current.next = Node(items[i])
+            self.current = self.current.next
+            i += 1
+        self.length = len(items)
+
+    def delete(self, positie):
+        if 1 <= positie <= self.getLength():
+            # case 1: first node
+            self.current.next = self.headptr.next
+            if positie == 1:
+                self.headptr.next = self.current.next.next
+                self.current.next = None
+                self.length -= 1
+                return True
+            else:
+                i = 1
+                while i < positie:
+                    self.prev.next = self.current.next
+                    self.current.next = self.current.next.next
+                    i += 1
+                self.prev.next.next = self.current.next.next
+                self.current.next = None
+                self.length -= 1
+                return True
+        else:
+            return False
+
+class HashItem:
+    def __init__(self,key,value):
+        self.key = key
+        self.value = value
+class Hashmap:
+    def __init__(self,type,n):
+        """
+        type is een van "lin","quad","sep"
+        n is de grootte van de hashmap
+        """
+        self.type = type
+        self.size = n
+
+        # Linked chain doesn't work yet
+        self.hashtableSep = []
+        self.index = 0
+        self.bool = True
+        if self.type == "sep":
+            for i in range(n):
+                pointer = Pointer()
+                self.hashtableSep.append(pointer)
+        else:
+            self.hashtable = [createTableItem(None,None)]*n
+    def isEmpty(self):
+        i=0
+        if self.type == "sep":
+            for item in self.hashtableSep:
+                if item == None:
+                    i+=1
+                else:
+                    return False
+            if i == self.size:
+                return True
+        else:
+            for element in self.hashtable:
+                if element.key == None:
+                    i+=1
+                else:
+                    return False
+            if i == self.size:
+                return True
+        return False
+    def hashing(self,searchkey):
+        return searchkey % self.size
+    def tableInsert(self,newItem):
+        if newItem.key == None and self.type != "sep":
+            for item in self.hashtable:
+                if item.key == None:
+                    return False
+                continue
+        elif newItem.key == None:
+            return False
+
+        index = self.hashing(newItem.key)
+        if index > self.size:
+            return False
+        if self.type == "lin" or self.type == "quad":
+            if self.hashtable[index].key == None:
+                self.hashtable[index] = newItem
+                return True
+            else:
+                i = 0
+                if self.type == "lin":
+                    while index+i <= self.size:
+                        counter = 0
+                        for s in range(self.size):
+                            if (None == self.hashtable[s].key):
+                                counter += 1
+                            else:
+                                continue
+                        if counter == 0:
+                            return False
+
+                        if self.hashtable[index+i].key == None:
+                            self.hashtable[index+i] = newItem
+                            return True
+                        i += 1
+                        if index+i >= self.size:
+                            index = 0
+                            i = 0
+
+                j = 0
+                if self.type == "quad":
+                    while index+(j**2) < self.size and self.hashtable[index+i].key != None :
+                        if self.hashtable[index+(j**2)].key == None:
+                            self.hashtable[index+(j**2)] = newItem
+                            return True
+                        j += 1
+                        if index+(j**2) >= self.size:
+                            total = (j**2)
+                            remaining = total - (len(self.hashtable)-index+1)
+                            index = remaining
+                            j = 0
+                return False
+        if self.type == "sep":
+            if self.bool == False:
+                if self.hashtableSep[self.index].next == None:
+                    linkedchain = LinkedChain()
+                    linkedchain.insert(linkedchain.getLength() + 1, newItem)
+                    self.hashtableSep[self.index].next = linkedchain
+                elif self.hashtableSep[self.index].next != None:
+                    self.hashtableSep[self.index].next.insert(1,newItem)
+
+            else:
+                if self.hashtableSep[index].next == None:
+                    linkedchain = LinkedChain()
+                    linkedchain.insert(linkedchain.getLength() + 1, newItem)
+                    self.hashtableSep[index].next = linkedchain
+
+                elif self.hashtableSep[index].next != None:
+                    self.hashtableSep[index].next.insert(1,newItem)
+
+
+
+
+
+    def tableRetrieve(self,searchKey):
+        index = self.hashing(searchKey)
+        if index > self.size:
+            return (None,False)
+        if self.type == "lin" or self.type == "quad":
+            if self.hashtable[index].key != None and searchKey == self.hashtable[index].key:
+                return (self.hashtable[index].value,True)
+            else:
+                i = 0
+                counter = 0
+                if self.type == "lin":
+                    while index+i <= self.size and counter < 2:
+                        if self.hashtable[index+i].key != None and searchKey == self.hashtable[index].key:
+                            return (self.hashtable[index+i].value,True)
+                        i += 1
+                        if index+i >= self.size:
+                            index = 0
+                            i = 0
+                            counter += 1
+                counter = 0
+                j=0
+                if self.type == "quad":
+                    while index+(j**2) <= self.size and counter < 2:
+                        if self.hashtable[index+(j**2)].key != None and searchKey == self.hashtable[index].key:
+                            return (self.hashtable[index+(j**2)].value,True)
+                        j += 1
+                        if index+(j**2) >= self.size:
+                            index = 0
+                            j = 0
+                            counter += 1
+            return (None,False)
+
+    # {'type': 'lin', 'items':[5,10,8]}
+    def save(self):
+        if self.type != "sep":
+            output = "{"
+            output += "'type': " + "'" + self.type + "', " + "'items':["
+            for i in range(self.size):
+                if i == self.size-1:
+                    output += str(self.hashtable[i].value) + "]}"
+                else:
+                    output += str(self.hashtable[i].value) + ","
+            return output
+        else:
+            # {'type': 'sep', 'items': [None, None, [23, 16, 9, 2], [3], None, [5], None]}
+            outputsep = "{"
+            outputsep += "'type': " + "'" + self.type + "', " + "'items':["
+            for i in range(self.size):
+                if self.hashtableSep[i].next == None and i != self.size-1:
+                    outputsep += " None" + ","
+                elif self.hashtableSep[i].next != None and i != self.size-1:
+                    outputsep += " ["
+                    for j in range(self.hashtableSep[i].next.getLength()):
+                        if j+1 == self.hashtableSep[i].next.getLength():
+                            item = self.hashtableSep[i].next.retrieve(j + 1)
+                            outputsep += str(item[0].key) + "],"
+                        else:
+                            item = self.hashtableSep[i].next.retrieve(j+1)
+                            outputsep += str(item[0].key) + ", "
+                elif self.hashtableSep[i].next == None and i == self.size-1:
+                    outputsep += "None" + "]}"
+            return outputsep
+
+    def load(self,dict):
+        types = dict["type"]
+        size = len(dict["items"])
+        if types != "sep":
+            self.size = size
+            self.type = types
+            my_list = list()
+            for i in range(size):
+                my_list.append(createTableItem(None,None))
+            self.hashtable = my_list
+            counter=0
+            for element in dict["items"]:
+                self.hashtable[counter] = createTableItem(element,element)
+                counter += 1
+        else:
+            NewSepHash = Hashmap(types,size)
+            NewSepHash.bool = False
+            for element in dict["items"]:
+                if type(element) == list:
+                    for i in range(len(element)-1,-1,-1):
+                        NewSepHash.tableInsert(createTableItem(element[i],element[i]))
+                else:
+                    NewSepHash.tableInsert(createTableItem(element,element))
+                NewSepHash.index += 1
+            self.hashtableSep = NewSepHash.hashtableSep
+            self.size = size
+            self.type = types
+    def tableDelete(self,value):
+        if self.type != "sep":
+            for index in range(self.size):
+                if self.hashtable[index].value == value:
+                    self.hashtable[index].key = None
+                    self.hashtable[index].value = None
+                    return True
+            return False
+        else:
+            for index in range(self.size):
+                if self.hashtableSep[index].next == None:
+                    continue
+                for i in range(self.hashtableSep[index].next.getLength()):
+                    x = self.hashtableSep[index].next.retrieve(i+1)
+                    if x[0].key == createTableItem(value,value).key:
+                        self.hashtableSep[index].next.delete(i+1)
+                        return True
+                return False
+
